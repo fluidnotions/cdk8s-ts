@@ -4,6 +4,7 @@ import { KubeDeployment, KubeService, IntOrString, Quantity, KubePersistentVolum
 import { set } from 'lodash';
 
 export interface WebServiceProps {
+  readonly isExternallyAccessible?: boolean;
   readonly namespace: string;
   /**
    * The Docker image to use for this service.
@@ -46,15 +47,18 @@ export class WebService extends Construct {
     const storageClassName = props.pvc?.storageClassName ?? "microk8s-hostpath"
     const containerEnv =  props.containerEnv ?? []
     const namePrefix = id
+    const isExternallyAccessible = props.isExternallyAccessible ?? true
 
-    new KubeService(this, 'service', {
-      metadata: { namespace, name: `${namePrefix}-service` },
-      spec: {
-        type: 'ClusterIP',
-        ports: [ { port, targetPort: IntOrString.fromNumber(containerPort) } ],
-        selector: label
-      }
-    });
+    if(isExternallyAccessible){
+      new KubeService(this, 'service', {
+        metadata: { namespace, name: `${namePrefix}-service` },
+        spec: {
+          type: 'ClusterIP',
+          ports: [ { port, targetPort: IntOrString.fromNumber(containerPort) } ],
+          selector: label
+        }
+      });
+    }
     const deployment: KubeDeploymentProps = {
       metadata: { namespace, name: `${namePrefix}-deployment` },
       spec: {
@@ -86,7 +90,7 @@ export class WebService extends Construct {
           annotations: {associatedDeployment: `${namePrefix}-deployment`}
         },
         spec: {
-          accessModes: ['ReadWrite'],
+          accessModes: ['ReadWriteMany'],
           storageClassName: storageClassName,
           resources: { requests: { storage:  Quantity.fromString('1Gi')} }
         },
@@ -99,8 +103,12 @@ export class WebService extends Construct {
           }
         }
       ])
-      set(deployment, 'spec.template.spec.containers[0].volumeMounts[0].mountPath', props.pvc.containerMountPath)
+      set(deployment, 'spec.template.spec.containers[0].volumeMounts', [{
+        name: 'data',
+        mountPath: props.pvc.containerMountPath,
+      }])
     }
+    console.log('deployment', JSON.stringify(deployment))
     new KubeDeployment(this, 'deployment', deployment);
   }
 }

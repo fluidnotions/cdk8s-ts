@@ -11,8 +11,7 @@
     "compile": "tsc --build",
     "watch": "tsc --build -w",
     "test": "jest",
-    "build": "pnpm run compile && pnpm run synth",
-    "deploy": "kubectl apply -f /dist",
+    "build": "rm -rf build && pnpm run compile && pnpm run synth",
     "upgrade": "pnpm i cdk8s@latest cdk8s-cli@latest",
     "upgrade:next": "pnpm i cdk8s@next cdk8s-cli@next"
   },

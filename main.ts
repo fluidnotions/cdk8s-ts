@@ -20,7 +20,7 @@ export class MyChart extends Chart {
        }
     }
 
-    new WebService(this, 'camunda-bpm-platform_7_20', camWebServiceProps);
+    new WebService(this, 'camunda-bpm-platform-7-20', camWebServiceProps);
    
 
   }
