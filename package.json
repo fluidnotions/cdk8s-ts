@@ -17,10 +17,12 @@
     "upgrade:next": "pnpm i cdk8s@next cdk8s-cli@next"
   },
   "dependencies": {
+    "@types/lodash": "^4.14.195",
     "cdk8s": "^2.14.0",
     "cdk8s-plus-25": "^2.11.0",
     "cdk8s-plus-26": "^2.7.0",
-    "constructs": "^10.2.69"
+    "constructs": "^10.2.69",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@types/jest": "^26.0.24",
